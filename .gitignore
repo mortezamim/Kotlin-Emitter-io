@@ -44,3 +44,4 @@ emitter
 *.sum
 emitter.conf
 /go-test
+/c#-test
