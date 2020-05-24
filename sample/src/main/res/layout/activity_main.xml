@@ -10,35 +10,6 @@
     android:paddingVertical="20dp"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/clearHistory"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:background="@android:color/transparent"
-        android:text="Clear" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        android:layout_weight="1"
-        android:background="@color/mainBackground2">
-
-        <TextView
-            android:id="@+id/MessageHistory"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:lineSpacingExtra="8dp"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="8dp"
-            android:textColor="@color/colorAccent"
-            android:textSize="14sp"
-            tools:targetApi="p"
-            tools:text="msg1 : \nmsg2:" />
-
-    </ScrollView>
 
     <Button
         android:id="@+id/btnConnect"
@@ -60,5 +31,75 @@
         android:paddingHorizontal="30dp"
         android:textColor="@color/colorAccent"
         tools:text="Subscribe to topic" />
+
+    <Button
+        android:id="@+id/clearHistory"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:background="@android:color/transparent"
+        android:text="Clear" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/mainBackground2">
+
+        <TextView
+            android:id="@+id/tvMessageHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="8dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="8dp"
+            android:textColor="@color/colorAccent"
+            android:textSize="14sp"
+            tools:targetApi="p"
+            tools:text="msg1 : \nmsg2:" />
+
+    </ScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:background="@android:drawable/divider_horizontal_textfield"
+        android:layout_height="1dp"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:background="@color/mainBackground2"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/etMessage"
+            style="@android:style/Widget.Holo.Light.EditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:gravity="start"
+            android:hint="Type something ..."
+            android:imeOptions="actionSend"
+            android:lines="1"
+            android:singleLine="true"
+            android:inputType="text"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="13dp"
+            android:background="@android:color/transparent"
+            android:textColor="#FFF"
+            android:layout_weight="1"
+            android:textColorHint="@android:color/darker_gray"
+            android:textSize="14sp" />
+
+        <ImageButton
+            android:id="@+id/btnSend"
+            android:layout_width="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/ic_menu_send"
+            android:layout_height="match_parent"/>
+
+    </LinearLayout>
 
 </LinearLayout>

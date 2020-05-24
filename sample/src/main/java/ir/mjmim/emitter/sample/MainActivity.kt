@@ -1,8 +1,12 @@
 package ir.mjmim.emitter.sample
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
+import android.view.KeyEvent
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import ir.mjmim.emitter.core.EmitterClient
 import ir.mjmim.emitter.core.listeners.IConnectListener
 import ir.mjmim.emitter.core.listeners.IGlobalListener
@@ -17,6 +21,7 @@ class MainActivity : AppCompatActivity() {
         CONNECTED,
         SUBSCRIBED
     }
+    var currentState = ActionButtons.DISCONNECTED
 
     private val serverPath = "tcp://192.168.1.101:8080"
     private val topicName = "demo/"
@@ -29,24 +34,52 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onStart() {
         super.onStart()
         initListeners()
         updateActionButtons(ActionButtons.DISCONNECTED)
 
+        tvMessageHistory.text = "" +
+                "Step 1: set 'serverPath' , 'topicName' , 'secretKey' in MainActivity\n" +
+                "Note: If you have problem with these values check out 'https://emitter.io/develop/what-is-emitter/'\n\n" +
+                "Step 2 - Connect to broker then send message \n\n" +
+                "Step 3 - (optional) If you want to show messages in list subscribe to topic"
+        tvMessageHistory.setTextColor(Color.parseColor("#EA8235"))
         initialClient()
     }
 
     private fun initListeners() {
         btnConnect.setOnClickListener {
             startConnect(serverPath)
+            tvMessageHistory.text = ""
+            tvMessageHistory.setTextColor(ContextCompat.getColor(this, R.color.colorAccent))
         }
         btnSubscribe.setOnClickListener {
+            if (currentState == ActionButtons.SUBSCRIBED)
+                unsubscribeTopic(secretKey, topicName)
+                else
             subscribeTopic(secretKey, topicName)
         }
         clearHistory.setOnClickListener {
-            MessageHistory.text = ""
+            tvMessageHistory.text = ""
         }
+        btnSend.setOnClickListener {
+            publishToTopic(secretKey, topicName, etMessage.text.toString())
+        }
+
+        etMessage.setOnKeyListener(object : View.OnKeyListener {
+            override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
+                if ((event?.action == KeyEvent.ACTION_DOWN) &&
+                    (keyCode == KeyEvent.KEYCODE_ENTER)
+                ) {
+                    publishToTopic(secretKey, topicName, etMessage.text.toString())
+                    return true
+                }
+                return false
+            }
+
+        })
     }
 
     private fun initialClient() {
@@ -60,7 +93,7 @@ class MainActivity : AppCompatActivity() {
                 updateActionButtons(ActionButtons.CONNECTED)
             }
 
-            override fun onFailure(url: String, exception: Throwable) {
+            override fun onFailure(url: String, exception: Throwable?) {
                 updateActionButtons(ActionButtons.DISCONNECTED)
             }
         })?.addGlobalCallback(object : IGlobalListener {
@@ -72,7 +105,7 @@ class MainActivity : AppCompatActivity() {
             override fun messageArrived(topic: String?, message: String?) {
                 message?.let {
                     val sdf = SimpleDateFormat("hh:mm:ss", Locale.getDefault())
-                    MessageHistory.text = "${MessageHistory.text}\n${sdf.format(Date())}: $it"
+                    tvMessageHistory.text = "${tvMessageHistory.text}\n${sdf.format(Date())}: $it"
                 }
             }
 
@@ -81,9 +114,15 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-//    fun publishToTopic(client: EmitterClient, secretKey: String, topicName: String, s: String) {
-//        client.publishMessage(secretKey, topicName, s)
-//    }
+    private fun publishToTopic(secretKey: String, topicName: String, s: String) {
+        if (s.trim().isEmpty()) {
+            etMessage.requestFocus()
+            return
+        }
+        etMessage.setText("")
+
+        client?.publishMessage(secretKey, topicName, s)
+    }
 
     private fun subscribeTopic(secretKey: String, topicName: String) {
         client?.subscribeTopic(secretKey, topicName, object : IConnectListener {
@@ -91,7 +130,19 @@ class MainActivity : AppCompatActivity() {
                 updateActionButtons(ActionButtons.SUBSCRIBED)
             }
 
-            override fun onFailure(url: String, exception: Throwable) {
+            override fun onFailure(url: String, exception: Throwable?) {
+            }
+
+        })
+    }
+
+    private fun unsubscribeTopic(secretKey: String, topicName: String) {
+        client?.unsubscribeTopic(secretKey, topicName, object : IConnectListener {
+            override fun onSuccess(url: String) {
+                updateActionButtons(ActionButtons.CONNECTED)
+            }
+
+            override fun onFailure(url: String, exception: Throwable?) {
             }
 
         })
@@ -99,22 +150,29 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun updateActionButtons(state: ActionButtons) {
+        currentState = state
         when (state) {
             ActionButtons.DISCONNECTED -> {
                 btnConnect.isEnabled = true
                 btnSubscribe.isEnabled = false
+                btnSend.isEnabled = false
+                etMessage.isEnabled = false
+
                 btnConnect.text = "Connect to broker"
                 btnSubscribe.text = "Subscribe to topic"
             }
             ActionButtons.CONNECTED -> {
                 btnConnect.isEnabled = false
                 btnSubscribe.isEnabled = true
+                btnSend.isEnabled = true
+                etMessage.isEnabled = true
                 btnConnect.text = "Connected to $serverPath"
+                btnSubscribe.text = "Subscribe to topic"
             }
             ActionButtons.SUBSCRIBED -> {
                 btnConnect.isEnabled = false
-                btnSubscribe.isEnabled = false
-                btnSubscribe.text = "Subscribe to $topicName"
+//                btnSubscribe.isEnabled = false
+                btnSubscribe.text = "unsubscribe from $topicName"
             }
         }
     }
