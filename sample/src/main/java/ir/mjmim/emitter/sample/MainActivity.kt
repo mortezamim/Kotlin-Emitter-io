@@ -24,8 +24,8 @@ class MainActivity : AppCompatActivity() {
     var currentState = ActionButtons.DISCONNECTED
 
     private val serverPath = "tcp://192.168.1.101:8080"
-    private val topicName = "demo/"
-    private val secretKey = "TWsZT5U-6CDZX5wxHuU26C-bT2GVPjyJ"
+    private val topicName = "users/1/message/"
+    private val secretKey = "Flt6lAtm7Xkxg_WJk41gRlrFvUZMk46m"
 
     private var client: EmitterClient? = null
 
@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
             override fun onFailure(url: String, exception: Throwable?) {
             }
 
-        })
+        },0)
     }
 
     private fun unsubscribeTopic(secretKey: String, topicName: String) {

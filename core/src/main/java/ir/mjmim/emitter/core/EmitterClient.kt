@@ -83,10 +83,10 @@ class EmitterClient(ctx: Context) {
         return instance
     }
 
-    fun subscribeTopic(secretKey: String, topicName: String, listener: IConnectListener? = null): EmitterClient {
+    fun subscribeTopic(secretKey: String, topicName: String, listener: IConnectListener? = null, loadHistoryCount: Int = 0): EmitterClient {
         if (client == null) throw NullPointerException("Client can't be null...")
         val qos = 1
-        val topicPath = topicPathFormatter(secretKey, topicName)
+        val topicPath = topicPathFormatter(secretKey, topicName,loadHistoryCount)
         try {
             val subToken = client!!.subscribe(topicPath, qos)
 
@@ -108,10 +108,10 @@ class EmitterClient(ctx: Context) {
         return instance
     }
 
-    fun unsubscribeTopic(secretKey: String, topicName: String, listener: IConnectListener? = null){
+    fun unsubscribeTopic(secretKey: String, topicName: String, listener: IConnectListener? = null) {
         if (client == null) throw NullPointerException("Client can't be null...")
         val topicPath = topicPathFormatter(secretKey, topicName)
-        client?.unsubscribe(topicPath,ctx,object :IMqttActionListener{
+        client?.unsubscribe(topicPath, ctx, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 log("unsubscribed from : $topicName")
                 listener?.onSuccess(topicPath)
@@ -151,8 +151,8 @@ class EmitterClient(ctx: Context) {
         }
     }
 
-    private fun topicPathFormatter(secretKey: String, topicName: String): String {
-        return "$secretKey/$topicName"
+    private fun topicPathFormatter(secretKey: String, topicName: String, loadLastCount: Int = 0): String {
+        return "$secretKey/$topicName?last=$loadLastCount"
     }
 
     fun enableLogging(customTag: String = "Kotlin-Emitter-IO"): EmitterClient {
